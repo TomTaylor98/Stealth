@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3 uid="uid://drnqv63oqxu6a"]
+
+[ext_resource type="Script" path="res://areaLight.gd" id="1_50t3i"]
+[ext_resource type="Script" path="res://switch.gd" id="2_exujt"]
+[ext_resource type="Texture2D" uid="uid://dm61ceeosakpk" path="res://aL.png" id="3_opxsi"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_5chuo"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0x5pt"]
+radius = 75.0
+
+[node name="areaLight" type="Area2D"]
+position = Vector2(327, 204)
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("1_50t3i")
+
+[node name="switch" type="Area2D" parent="." groups=["interactables"]]
+process_mode = 3
+z_index = 2
+position = Vector2(-37, -58)
+collision_layer = 0
+script = ExtResource("2_exujt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="switch"]
+shape = SubResource("CircleShape2D_5chuo")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+z_index = 2
+position = Vector2(3, 3)
+shape = SubResource("CircleShape2D_0x5pt")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+shadow_enabled = true
+texture = ExtResource("3_opxsi")
+texture_scale = 0.2
+
+[connection signal="body_entered" from="switch" to="switch" method="_on_body_entered"]
+[connection signal="body_exited" from="switch" to="switch" method="_on_body_exited"]

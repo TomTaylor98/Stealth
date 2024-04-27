@@ -1,0 +1,192 @@
+[gd_scene load_steps=15 format=3 uid="uid://bg2tyvpy8ars2"]
+
+[ext_resource type="Script" path="res://Playerchar.gd" id="1_ieoq3"]
+[ext_resource type="Script" path="res://lightChecker.gd" id="2_f7boo"]
+[ext_resource type="Texture2D" uid="uid://dm61ceeosakpk" path="res://aL.png" id="2_f28jy"]
+[ext_resource type="Script" path="res://UI.gd" id="3_2h1md"]
+[ext_resource type="Script" path="res://meleeArea.gd" id="3_strlp"]
+[ext_resource type="Script" path="res://disruptor.gd" id="4_dy5us"]
+[ext_resource type="AudioStream" uid="uid://cqatp0aqno5ed" path="res://soundEffects/581568__ipellison__metal-bars_hit9.wav" id="4_k2or1"]
+
+[sub_resource type="GDScript" id="GDScript_iito7"]
+script/source = "extends Camera2D
+
+var is_shaking:bool
+var shake_magnitude:float
+var shake_fade:float = 0.25
+var shake_time:float 
+
+func _process(delta):
+	queue_redraw()
+	if get_parent().in_light:
+		is_shaking = true
+		shake_magnitude = 1.0
+		shake_time = 3.0
+		$PointLight2D.energy+=0.01
+	
+	else:
+		$PointLight2D.energy-=0.1
+	$PointLight2D.energy = clampf($PointLight2D.energy,0.4,8.0)
+	
+	if is_shaking:
+		shake_time -= 1; 
+		var _xval = [-shake_magnitude,shake_magnitude].pick_random()
+		var _yval = [-shake_magnitude,shake_magnitude].pick_random()
+		position = Vector2(_xval,_yval)
+		if shake_time <= 0:
+			shake_magnitude -= shake_fade 
+			if shake_magnitude <= 0:
+				position = Vector2.ZERO
+				is_shaking = false
+	
+#	if !get_parent().in_light:
+#		zoom = zoom.move_toward(Vector2(2.5,2.5),0.02)
+#		zoom.clamp(Vector2(1,1),Vector2(2,2))
+#	if get_parent().in_light:
+#		zoom = zoom.move_toward(Vector2(4,4),0.5)
+#		zoom.clamp(Vector2(1,1),Vector2(4,4))
+   
+	
+	offset = offset.move_toward(get_parent().current_dir*40,200*delta) 
+
+func _draw():
+	pass
+
+func _input(event):
+	if event is InputEventKey:
+		if event.is_pressed() and event.keycode==KEY_CTRL:
+			zoom = zoom/2
+	#	else:
+		#	zoom = Vector2(4,4)
+		if event.is_released() and event.keycode==KEY_CTRL:
+			zoom = Vector2(4,4)
+var live_num = 5
+
+
+func _on_melee_area_body_entered(body):
+	shake_time = 2.0
+	shake_magnitude = 2.0
+	is_shaking = true
+
+
+func _on_light_checker_area_entered(area):
+	is_shaking = true
+
+
+func _on_light_checker_area_exited(area):
+	is_shaking = false
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_h7e2h"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_uxtkk"]
+radius = 1.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5gnti"]
+size = Vector2(17, 16)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_vvdhh"]
+radius = 5.0
+
+[sub_resource type="Animation" id="Animation_gedl7"]
+resource_name = "explosion"
+length = 2.00001
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.1, 0.6, 1.4, 1.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"values": [{
+"args": [],
+"method": &"inc_rad"
+}, {
+"args": [],
+"method": &"inc_rad"
+}, {
+"args": [],
+"method": &"inc_rad"
+}, {
+"args": [],
+"method": &"inc_rad"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_6iwiw"]
+_data = {
+"explosion": SubResource("Animation_gedl7")
+}
+
+[node name="Player" type="CharacterBody2D" groups=["player"]]
+z_index = 2
+position = Vector2(81, 79)
+collision_mask = 6
+script = ExtResource("1_ieoq3")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(2.7, 2.7)
+script = SubResource("GDScript_iito7")
+
+[node name="PointLight2D" type="PointLight2D" parent="Camera2D"]
+texture = ExtResource("2_f28jy")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Camera2D"]
+
+[node name="UI" type="Node2D" parent="Camera2D/CanvasLayer"]
+script = ExtResource("3_2h1md")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_h7e2h")
+
+[node name="lightChecker" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("2_f7boo")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="lightChecker"]
+shape = SubResource("CircleShape2D_uxtkk")
+
+[node name="meleeArea" type="Area2D" parent="."]
+position = Vector2(21, 0)
+collision_layer = 0
+collision_mask = 6
+script = ExtResource("3_strlp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="meleeArea"]
+position = Vector2(-1, 0)
+shape = SubResource("RectangleShape2D_5gnti")
+debug_color = Color(1, 0.541176, 0.537255, 0.419608)
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="meleeArea"]
+position = Vector2(-21, 0)
+stream = ExtResource("4_k2or1")
+
+[node name="disruptor" type="Area2D" parent="."]
+process_mode = 4
+visible = false
+z_index = 2
+collision_layer = 0
+collision_mask = 10
+script = ExtResource("4_dy5us")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="disruptor"]
+shape = SubResource("CircleShape2D_vvdhh")
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="disruptor"]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="disruptor"]
+libraries = {
+"": SubResource("AnimationLibrary_6iwiw")
+}
+
+[connection signal="area_entered" from="lightChecker" to="." method="_on_light_checker_area_entered"]
+[connection signal="area_entered" from="lightChecker" to="Camera2D" method="_on_light_checker_area_entered"]
+[connection signal="area_exited" from="lightChecker" to="." method="_on_light_checker_area_exited"]
+[connection signal="area_exited" from="lightChecker" to="Camera2D" method="_on_light_checker_area_exited"]
+[connection signal="body_entered" from="meleeArea" to="Camera2D" method="_on_melee_area_body_entered"]
+[connection signal="body_entered" from="meleeArea" to="meleeArea" method="_on_body_entered"]
+[connection signal="body_entered" from="disruptor" to="disruptor" method="_on_body_entered"]
+[connection signal="body_exited" from="disruptor" to="disruptor" method="_on_body_exited"]

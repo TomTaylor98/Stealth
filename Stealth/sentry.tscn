@@ -1,0 +1,46 @@
+[gd_scene load_steps=5 format=3 uid="uid://cvcp7iqnhcdvn"]
+
+[ext_resource type="Script" path="res://sentry.gd" id="1_xthmk"]
+[ext_resource type="Texture2D" uid="uid://dm61ceeosakpk" path="res://aL.png" id="2_v4fxy"]
+
+[sub_resource type="Curve2D" id="Curve2D_0dvif"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 554.314, -34.0808, 0, 0, 0, 0, -1, -21, 0, 0, 0, 0, 19.3219, 327.615, 0, 0, 0, 0, 567.221, 316.705)
+}
+point_count = 4
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ivoyv"]
+radius = 80.0
+
+[node name="sentry" type="Area2D"]
+process_mode = 4
+z_index = 2
+position = Vector2(76, 58)
+collision_layer = 0
+script = ExtResource("1_xthmk")
+
+[node name="Path2D" type="Path2D" parent="."]
+rotation = 0.0253852
+curve = SubResource("Curve2D_0dvif")
+
+[node name="alarmTimeoutTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+shape = SubResource("CircleShape2D_ivoyv")
+
+[node name="checkeyesight" type="RayCast2D" parent="."]
+collision_mask = 2
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+color = Color(0.658824, 0.517647, 0.117647, 1)
+energy = 3.25
+shadow_enabled = true
+texture = ExtResource("2_v4fxy")
+texture_scale = 0.5
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]
+[connection signal="timeout" from="alarmTimeoutTimer" to="." method="_on_alarm_timeout_timer_timeout"]

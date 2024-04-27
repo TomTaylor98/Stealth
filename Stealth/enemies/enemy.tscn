@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://elg4qg74injl"]
+
+[ext_resource type="Script" path="res://enemies/Enemy.gd" id="1_dwoc3"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lhoak"]
+
+[node name="Enemy" type="Area2D" groups=["enemies", "entities"]]
+process_mode = 1
+z_index = 5
+position = Vector2(95, 100)
+script = ExtResource("1_dwoc3")
+type = null
+name_id = null
+color = null
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_lhoak")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -20.0
+offset_top = -39.0
+offset_right = 20.0
+offset_bottom = -16.0
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+collision_mask = 2
+
+[node name="wall_checker" type="RayCast2D" parent="."]
+collision_mask = 2

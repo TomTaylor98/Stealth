@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://denibn8teueik"]
+
+[ext_resource type="Script" path="res://weapons/Gun.gd" id="1_okogh"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_00k2b"]
+radius = 40.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gayal"]
+
+[node name="Gun" type="Node2D"]
+script = ExtResource("1_okogh")
+
+[node name="Timer" type="Timer" parent="."]
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+position = Vector2(182, 108)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
+shape = SubResource("CircleShape2D_00k2b")
+
+[node name="bullet" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="bullet"]
+shape = SubResource("CircleShape2D_gayal")
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="area_entered" from="bullet" to="." method="_on_bullet_area_entered"]
+[connection signal="body_entered" from="bullet" to="." method="_on_bullet_body_entered"]
